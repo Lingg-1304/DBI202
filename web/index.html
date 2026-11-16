@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DBI202 Exam Master - Ôn tập & Thi thử FPT University</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗄️</text></svg>">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+            <i data-lucide="database" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-300 bg-clip-text text-transparent">DBI202 MASTER</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-bold">FE 2026</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Hệ thống ôn thi & trắc nghiệm FPT University</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="hidden md:flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200/60 dark:border-slate-700/50">
+          <button id="nav-btn-practice" onclick="switchTab('practice')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all bg-blue-600 text-white shadow-sm">
+            <i data-lucide="book-open" class="w-4 h-4"></i> Ôn tập
+          </button>
+          <button id="nav-btn-exam" onclick="switchTab('exam')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700">
+            <i data-lucide="timer" class="w-4 h-4"></i> Thi thử
+          </button>
+          <button id="nav-btn-bank" onclick="switchTab('bank')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700">
+            <i data-lucide="layers" class="w-4 h-4"></i> Ngân hàng đề
+          </button>
+          <button id="nav-btn-stats" onclick="switchTab('stats')" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700">
+            <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Thống kê
+          </button>
+        </nav>
+
+        <!-- Right stats & theme -->
+        <div class="flex items-center gap-3">
+          <span id="header-stat-badge" class="hidden sm:inline-flex text-xs px-3 py-1.5 rounded-full font-mono font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            Tiến độ: 0/346 (0% đúng)
+          </span>
+
+          <button id="theme-toggle-btn" onclick="toggleTheme()" class="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 flex items-center justify-center transition-colors shadow-sm" title="Đổi giao diện Sáng/Tối">
+            <i data-lucide="sun" class="w-5 h-5 text-amber-400"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile nav bar -->
+      <div class="flex md:hidden items-center justify-around py-2 border-t border-slate-100 dark:border-slate-800">
+        <button onclick="switchTab('practice')" class="flex flex-col items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
+          <i data-lucide="book-open" class="w-5 h-5"></i> Ôn tập
+        </button>
+        <button onclick="switchTab('exam')" class="flex flex-col items-center gap-1 text-xs font-semibold text-slate-500">
+          <i data-lucide="timer" class="w-5 h-5"></i> Thi thử
+        </button>
+        <button onclick="switchTab('bank')" class="flex flex-col items-center gap-1 text-xs font-semibold text-slate-500">
+          <i data-lucide="layers" class="w-5 h-5"></i> Ngân hàng
+        </button>
+        <button onclick="switchTab('stats')" class="flex flex-col items-center gap-1 text-xs font-semibold text-slate-500">
+          <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Thống kê
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN BODY -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: ÔN TẬP (PRACTICE MODE) -->
+    <!-- ========================================== -->
+    <section id="tab-practice" class="space-y-6">
+      
+      <!-- Filters and Search Bar -->
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+        
+        <!-- Category & Status Filters -->
+        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <div class="flex items-center gap-2">
+            <i data-lucide="filter" class="w-4 h-4 text-slate-400"></i>
+            <select id="practice-category-select" onchange="state.practice.selectedCategory = this.value; applyPracticeFilters();" class="text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+              <option value="all">Đang tải dạng...</option>
+            </select>
+          </div>
+
+          <select id="practice-status-select" onchange="state.practice.selectedStatus = this.value; applyPracticeFilters();" class="text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+            <option value="all">Tất cả trạng thái</option>
+            <option value="unattempted">Chưa làm</option>
+            <option value="correct">Đã làm đúng</option>
+            <option value="wrong">Đã làm sai</option>
+            <option value="bookmarked">Đã đánh dấu sao ⭐</option>
+          </select>
+        </div>
+
+        <!-- Search & Actions -->
+        <div class="flex items-center gap-2 w-full md:w-auto">
+          <div class="relative flex-1 md:w-64">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+            <input id="practice-search-input" type="text" placeholder="Tìm theo #số hoặc từ khóa..." oninput="state.practice.searchQuery = this.value; applyPracticeFilters();" class="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          
+          <button onclick="randomPracticeQuestion()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Câu hỏi ngẫu nhiên (R)">
+            <i data-lucide="shuffle" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Practice Main Grid (Question Card + Sidebar Palette) -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        
+        <!-- Question Container (3 Cols) -->
+        <div class="lg:col-span-3 space-y-5">
+          
+          <!-- Empty State -->
+          <div id="practice-empty-state" class="hidden p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
+            <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 mx-auto flex items-center justify-center mb-4">
+              <i data-lucide="inbox" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Không tìm thấy câu hỏi phù hợp</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Hãy thử chọn danh mục khác hoặc xóa bộ lọc tìm kiếm.</p>
+            <button onclick="state.practice.selectedCategory = 'all'; state.practice.selectedStatus = 'all'; state.practice.searchQuery = ''; document.getElementById('practice-category-select').value = 'all'; document.getElementById('practice-status-select').value = 'all'; document.getElementById('practice-search-input').value = ''; applyPracticeFilters();" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700">
+              Xem tất cả 346 câu
+            </button>
+          </div>
+
+          <!-- Question Card -->
+          <div id="practice-question-card" class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-6">
+            
+            <!-- Card Header -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-3">
+                <span id="practice-q-num" class="font-black text-xl text-blue-600 dark:text-blue-400 font-mono tracking-tight">Câu 1 / 346</span>
+                <span id="practice-filtered-num" class="text-xs text-slate-400 font-mono font-medium">(1/346)</span>
+                <span id="practice-cat-badge" class="text-xs px-3 py-1 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  Dạng bài tập
+                </span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button id="practice-bookmark-btn" onclick="const q = state.practice.filtered[state.practice.currentIndex]; if (q) toggleBookmark(q.id);" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" title="Đánh dấu câu hỏi cần xem lại (S)">
+                  <i data-lucide="star" class="w-5 h-5 text-slate-400"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Multi-select Notice -->
+            <div id="practice-multi-banner" class="hidden p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-sm font-semibold flex items-center gap-2">
+              <i data-lucide="check-square" class="w-4 h-4"></i> Chọn nhiều đáp án đúng (Multi-select)
+            </div>
+
+            <!-- Question Image -->
+            <div class="question-img-container border border-slate-200 dark:border-slate-700">
+              <img id="practice-question-img" src="" alt="Câu hỏi đề thi" class="w-full">
+            </div>
+
+            <!-- Options Section -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <span>Chọn đáp án của bạn:</span>
+                <span class="font-mono text-slate-400 font-normal">Phím tắt: [1], [2], [3], [4] hoặc [A], [B], [C], [D]</span>
+              </div>
+              <div id="practice-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Buttons rendered dynamically -->
+              </div>
+
+              <!-- Multi-select Submit Button -->
+              <button id="practice-submit-check-btn" onclick="const q = state.practice.filtered[state.practice.currentIndex]; if (q) submitPracticeAnswer(q);" class="hidden w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-base shadow-lg shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 transition-all">
+                Kiểm tra đáp án đã chọn
+              </button>
+            </div>
+
+            <!-- Explanation & Answer Box -->
+            <div id="practice-explanation-card" class="hidden p-6 rounded-2xl bg-gradient-to-br from-blue-50/70 to-indigo-50/40 dark:from-slate-800/80 dark:to-slate-800/40 border-2 border-blue-200 dark:border-blue-900/50 space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-extrabold text-lg">
+                  <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                  <span>Đáp án đúng:</span>
+                  <span id="practice-correct-ans-text" class="font-mono text-2xl font-black bg-emerald-100 dark:bg-emerald-950 px-3 py-0.5 rounded-lg border border-emerald-300 dark:border-emerald-800">
+                    A
+                  </span>
+                </div>
+
+                <button id="practice-view-original-btn" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 text-slate-700 dark:text-slate-200 flex items-center gap-1.5 shadow-sm">
+                  <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Xem slide gốc đầy đủ
+                </button>
+              </div>
+
+              <div class="space-y-1">
+                <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Giải thích chi tiết:</h4>
+                <p id="practice-expl-text" class="text-sm text-slate-800 dark:text-slate-200 font-medium leading-relaxed"></p>
+              </div>
+
+              <!-- Note Image Crop -->
+              <div class="space-y-1.5 pt-2">
+                <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ghi chú & Đáp án gốc từ tài liệu:</h4>
+                <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+                  <img id="practice-note-img" src="" alt="Ghi chú tác giả" class="w-full h-auto">
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button id="practice-prev-btn" onclick="prevPracticeQuestion()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Câu trước [←]
+              </button>
+
+              <button onclick="randomPracticeQuestion()" class="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 font-semibold text-sm transition-colors">
+                <i data-lucide="shuffle" class="w-4 h-4"></i> Ngẫu nhiên [R]
+              </button>
+
+              <button id="practice-next-btn" onclick="nextPracticeQuestion()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md shadow-blue-500/20">
+                Câu tiếp theo [→] <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Navigator Sidebar Palette (1 Col) -->
+        <div class="lg:col-span-1 space-y-4">
+          <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm sticky top-24">
+            
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-extrabold text-sm text-slate-800 dark:text-slate-100">Bảng câu hỏi</h3>
+              <span class="text-xs font-mono text-slate-400">DBI202</span>
+            </div>
+
+            <!-- Legend -->
+            <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-500 dark:text-slate-400 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded bg-emerald-500"></span> Đúng
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded bg-rose-500"></span> Sai
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded bg-slate-200 dark:bg-slate-700"></span> Chưa làm
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 relative after:content-[''] after:w-1.5 after:h-1.5 after:bg-amber-400 after:rounded-full after:absolute after:top-0 after:right-0"></span> Đã đánh dấu
+              </div>
+            </div>
+
+            <!-- Grid Container -->
+            <div id="practice-palette-grid" class="grid grid-cols-5 gap-2 max-h-[460px] overflow-y-auto pr-1">
+              <!-- Buttons dynamically populated -->
+            </div>
+
+            <!-- Reset Button -->
+            <div class="pt-4 mt-3 border-t border-slate-100 dark:border-slate-800">
+              <button onclick="resetPracticeProgress()" class="w-full text-xs text-slate-400 hover:text-rose-500 py-1.5 text-center transition-colors">
+                Đặt lại toàn bộ tiến độ làm bài
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: THI THỬ (MOCK EXAM MODE) -->
+    <!-- ========================================== -->
+    <section id="tab-exam" class="hidden space-y-6">
+
+      <!-- VIEW 1: EXAM SETUP -->
+      <div id="exam-setup-view" class="max-w-4xl mx-auto space-y-8 py-4">
+        
+        <div class="text-center space-y-2">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 mb-2">
+            <i data-lucide="timer" class="w-8 h-8"></i>
+          </div>
+          <h2 class="text-3xl font-black text-slate-900 dark:text-slate-100">PHÒNG THI THỬ DBI202</h2>
+          <p class="text-slate-500 dark:text-slate-400 text-sm max-w-xl mx-auto">
+            Mô phỏng chân thực bài thi Final Exam (FE) môn DBI202 FPT University với đồng hồ đếm ngược, chấm điểm chuẩn hệ 10 và xem lại đáp án chi tiết.
+          </p>
+        </div>
+
+        <!-- Presets -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          <!-- Standard 50Q / 60M -->
+          <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border-2 border-blue-500/60 dark:border-blue-500/40 shadow-xl shadow-blue-500/5 relative overflow-hidden flex flex-col justify-between hover:border-blue-500 transition-all">
+            <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 rounded-full blur-xl"></div>
+            <div>
+              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 mb-3 inline-block">KHUYÊN DÙNG</span>
+              <h3 class="text-xl font-black mb-1">Chuẩn FE DBI202</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Trộn ngẫu nhiên câu hỏi từ tất cả các dạng theo tỉ lệ đề thi thật.</p>
+              <div class="space-y-1.5 mb-6 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <div class="flex items-center gap-2"><i data-lucide="help-circle" class="w-4 h-4 text-blue-500"></i> 50 câu trắc nghiệm</div>
+                <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-blue-500"></i> 60 phút làm bài</div>
+                <div class="flex items-center gap-2"><i data-lucide="award" class="w-4 h-4 text-blue-500"></i> Điểm đạt: ≥ 5.0/10.0</div>
+              </div>
+            </div>
+            <button onclick="examEngine.startExam({ title: 'Chuẩn FE DBI202', category: 'all', questionCount: 50, durationMinutes: 60 })" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-500/20 transition-all">
+              Vào thi ngay
+            </button>
+          </div>
+
+          <!-- Quick Test 20Q / 25M -->
+          <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-blue-500 transition-all">
+            <div>
+              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 mb-3 inline-block">NHANH GỌN</span>
+              <h3 class="text-xl font-black mb-1">Thi nhanh (Quick Quiz)</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Phù hợp kiểm tra nhanh kiến thức trước khi vào giờ học hoặc ôn tập cấp tốc.</p>
+              <div class="space-y-1.5 mb-6 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <div class="flex items-center gap-2"><i data-lucide="help-circle" class="w-4 h-4 text-amber-500"></i> 20 câu trắc nghiệm</div>
+                <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-amber-500"></i> 25 phút làm bài</div>
+              </div>
+            </div>
+            <button onclick="examEngine.startExam({ title: 'Thi nhanh (Quick Quiz)', category: 'all', questionCount: 20, durationMinutes: 25 })" class="w-full py-3 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white font-bold text-sm transition-all">
+              Bắt đầu thi nhanh
+            </button>
+          </div>
+
+          <!-- SP2026 FE Real Test -->
+          <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-blue-500 transition-all">
+            <div>
+              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 mb-3 inline-block">HOT SOURCE</span>
+              <h3 class="text-xl font-black mb-1">Đề SP2026 FE</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Trọn bộ 24 câu hỏi đề thi kỳ mới nhất SP2026.</p>
+              <div class="space-y-1.5 mb-6 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <div class="flex items-center gap-2"><i data-lucide="help-circle" class="w-4 h-4 text-emerald-500"></i> 24 câu đề SP26</div>
+                <div class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-emerald-500"></i> 30 phút làm bài</div>
+              </div>
+            </div>
+            <button onclick="examEngine.startExam({ title: 'Đề mới nhất SP2026 FE', category: '7_SP2026_FE(25)', questionCount: 24, durationMinutes: 30 })" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-500/20 transition-all">
+              Thi đề SP2026
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Custom Setup Box -->
+        <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+          <h3 class="text-lg font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <i data-lucide="sliders" class="w-5 h-5 text-blue-500"></i> Tùy biến phòng thi theo ý muốn
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-500 uppercase">Danh mục câu hỏi:</label>
+              <select id="exam-category-select" class="w-full text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-2.5 text-slate-800 dark:text-slate-200">
+                <option value="all">Tất cả các dạng</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-500 uppercase">Số lượng câu:</label>
+              <select id="exam-custom-count" class="w-full text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-2.5 text-slate-800 dark:text-slate-200">
+                <option value="10">10 câu</option>
+                <option value="20">20 câu</option>
+                <option value="30">30 câu</option>
+                <option value="50" selected>50 câu</option>
+                <option value="100">100 câu</option>
+                <option value="346">Toàn bộ 346 câu</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-slate-500 uppercase">Thời gian làm bài:</label>
+              <select id="exam-custom-time" class="w-full text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-2.5 text-slate-800 dark:text-slate-200">
+                <option value="15">15 phút</option>
+                <option value="30">30 phút</option>
+                <option value="45">45 phút</option>
+                <option value="60" selected>60 phút</option>
+                <option value="90">90 phút</option>
+                <option value="0">Không giới hạn</option>
+              </select>
+            </div>
+
+          </div>
+
+          <button onclick="
+            const cat = document.getElementById('exam-category-select').value;
+            const count = parseInt(document.getElementById('exam-custom-count').value);
+            const time = parseInt(document.getElementById('exam-custom-time').value);
+            examEngine.startExam({ title: 'Thi tùy chỉnh', category: cat, questionCount: count, durationMinutes: time });
+          " class="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-base shadow-lg shadow-blue-500/20 transition-all">
+            BẮT ĐẦU BÀI THI TÙY CHỈNH
+          </button>
+        </div>
+
+      </div>
+
+      <!-- VIEW 2: ACTIVE EXAM -->
+      <div id="exam-active-view" class="hidden space-y-6">
+        
+        <!-- Sticky Exam Banner -->
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md flex items-center justify-between gap-4 sticky top-20 z-30">
+          
+          <div class="flex items-center gap-4">
+            <!-- Timer Clock -->
+            <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <i data-lucide="clock" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+              <span id="exam-timer-text" class="font-mono font-black text-xl text-blue-600 dark:text-blue-400">60:00</span>
+            </div>
+
+            <!-- Progress text -->
+            <div class="hidden sm:block">
+              <div class="text-xs text-slate-500">Tiến độ thi:</div>
+              <div id="exam-progress-text" class="font-bold text-sm text-slate-800 dark:text-slate-200 font-mono">0/50 (0%)</div>
+            </div>
+          </div>
+
+          <!-- Progress Bar (center) -->
+          <div class="hidden md:block flex-1 max-w-xs mx-4">
+            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700">
+              <div id="exam-progress-bar" class="bg-blue-600 h-full rounded-full transition-all duration-200" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button onclick="examEngine.confirmSubmitExam()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-md shadow-emerald-500/20 transition-all flex items-center gap-2">
+            <i data-lucide="send" class="w-4 h-4"></i> Nộp bài thi
+          </button>
+
+        </div>
+
+        <!-- Exam Workspace (Question + Palette) -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+          
+          <!-- Question Canvas (3 Cols) -->
+          <div class="lg:col-span-3 space-y-5">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-6">
+              
+              <!-- Header -->
+              <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-3">
+                  <span id="exam-q-current" class="font-black text-xl text-blue-600 dark:text-blue-400 font-mono">Câu 1 / 50</span>
+                  <span id="exam-q-cat" class="text-xs px-3 py-1 rounded-full font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Dạng bài tập</span>
+                </div>
+
+                <button id="exam-flag-btn" onclick="examEngine.toggleFlagCurrent()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                  <i data-lucide="flag" class="w-4 h-4 text-slate-400"></i>
+                  <span class="text-xs text-slate-500">Đặt cờ</span>
+                </button>
+              </div>
+
+              <!-- Multi-select notice -->
+              <div id="exam-multi-banner" class="hidden p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-sm font-semibold flex items-center gap-2">
+                <i data-lucide="check-square" class="w-4 h-4"></i> Câu hỏi nhiều đáp án đúng
+              </div>
+
+              <!-- Image -->
+              <div class="question-img-container border border-slate-200 dark:border-slate-700">
+                <img id="exam-question-img" src="" alt="Câu hỏi bài thi" class="w-full">
+              </div>
+
+              <!-- Options -->
+              <div class="space-y-3">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Chọn câu trả lời của bạn:
+                </div>
+                <div id="exam-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <!-- Dynamic options -->
+                </div>
+              </div>
+
+              <!-- Nav buttons -->
+              <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button id="exam-prev-btn" onclick="examEngine.prevExamQuestion()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">
+                  <i data-lucide="arrow-left" class="w-4 h-4"></i> Câu trước
+                </button>
+
+                <button id="exam-next-btn" onclick="examEngine.nextExamQuestion()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-blue-500/20">
+                  Câu tiếp theo <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Question Palette (1 Col) -->
+          <div class="lg:col-span-1 space-y-4">
+            <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm sticky top-40">
+              <h3 class="font-extrabold text-sm mb-3">Danh sách câu hỏi thi</h3>
+              
+              <!-- Legend -->
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-500 dark:text-slate-400 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500"></span> Đã chọn</div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200 dark:bg-slate-700"></span> Chưa làm</div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white dark:bg-slate-800 border relative after:content-[''] after:w-1.5 after:h-1.5 after:bg-amber-400 after:rounded-full after:absolute after:top-0 after:right-0"></span> Đã đặt cờ</div>
+              </div>
+
+              <!-- Palette Grid -->
+              <div id="exam-palette-grid" class="grid grid-cols-5 gap-2 max-h-[440px] overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- VIEW 3: EXAM RESULTS & REVIEW -->
+      <div id="exam-results-view" class="hidden max-w-4xl mx-auto space-y-8 py-4">
+        
+        <!-- Pass / Fail Banner -->
+        <div id="exam-result-pass-banner"></div>
+
+        <!-- Metrics Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+            <span class="text-xs font-bold text-slate-400 uppercase">Điểm thi (hệ 10)</span>
+            <div id="exam-res-score10" class="text-4xl font-black text-blue-600 dark:text-blue-400 mt-1 font-mono">0.0</div>
+          </div>
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+            <span class="text-xs font-bold text-slate-400 uppercase">Số câu đúng</span>
+            <div id="exam-res-correct-count" class="text-4xl font-black text-emerald-600 mt-1 font-mono">0/0</div>
+          </div>
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+            <span class="text-xs font-bold text-slate-400 uppercase">Độ chính xác</span>
+            <div id="exam-res-accuracy" class="text-4xl font-black text-indigo-600 mt-1 font-mono">0%</div>
+          </div>
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+            <span class="text-xs font-bold text-slate-400 uppercase">Thời gian làm bài</span>
+            <div id="exam-res-time" class="text-3xl font-black text-slate-700 dark:text-slate-300 mt-1 font-mono">0m 0s</div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="examEngine.renderReviewList('all')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600">Tất cả</button>
+            <button onclick="examEngine.renderReviewList('wrong')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">Chỉ câu sai</button>
+            <button onclick="examEngine.renderReviewList('correct')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">Chỉ câu đúng</button>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button onclick="examEngine.retakeWrongQuestions()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Luyện lại câu sai
+            </button>
+            <button onclick="document.getElementById('exam-results-view').classList.add('hidden'); document.getElementById('exam-setup-view').classList.remove('hidden');" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="play" class="w-4 h-4"></i> Thi bài mới
+            </button>
+          </div>
+        </div>
+
+        <!-- Detailed Review List -->
+        <div id="exam-review-container" class="space-y-6"></div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: NGÂN HÀNG ĐỀ (QUESTION EXPLORER) -->
+    <!-- ========================================== -->
+    <section id="tab-bank" class="hidden space-y-6">
+      
+      <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-black">Ngân hàng toàn bộ 346 câu hỏi DBI202</h2>
+            <p class="text-xs text-slate-500">Tra cứu nhanh câu hỏi, đáp án chuẩn và lời giải chi tiết</p>
+          </div>
+
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <select id="bank-category-select" onchange="renderBankTab()" class="text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-slate-800 dark:text-slate-200 font-medium">
+              <option value="all">Tất cả dạng</option>
+            </select>
+            <input id="bank-search-input" type="text" placeholder="Tìm nội dung câu hỏi..." oninput="renderBankTab()" class="text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-slate-800 dark:text-slate-200">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 text-xs font-semibold text-slate-400">
+          <span id="bank-total-count">0 câu hỏi</span>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 font-bold border-b border-slate-200 dark:border-slate-800 text-xs">
+              <tr>
+                <th class="px-4 py-3">STT</th>
+                <th class="px-4 py-3">Dạng bài</th>
+                <th class="px-4 py-3">Nội dung câu hỏi trích xuất</th>
+                <th class="px-4 py-3 text-center">Đáp án</th>
+                <th class="px-4 py-3 text-center">Trạng thái</th>
+                <th class="px-4 py-3 text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="bank-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: THỐNG KÊ (ANALYTICS & PROGRESS) -->
+    <!-- ========================================== -->
+    <section id="tab-stats" class="hidden space-y-6">
+      
+      <!-- Metric Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+          <span class="text-xs font-bold text-slate-400 uppercase">Tổng số câu</span>
+          <div id="stat-total-q" class="text-3xl font-black text-blue-600 mt-1 font-mono">346</div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+          <span class="text-xs font-bold text-slate-400 uppercase">Đã hoàn thành</span>
+          <div id="stat-answered-q" class="text-3xl font-black text-indigo-600 mt-1 font-mono">0</div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+          <span class="text-xs font-bold text-slate-400 uppercase">Số câu đúng</span>
+          <div id="stat-correct-q" class="text-3xl font-black text-emerald-600 mt-1 font-mono">0</div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+          <span class="text-xs font-bold text-slate-400 uppercase">Số câu sai</span>
+          <div id="stat-wrong-q" class="text-3xl font-black text-rose-600 mt-1 font-mono">0</div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+          <span class="text-xs font-bold text-slate-400 uppercase">Độ chính xác</span>
+          <div id="stat-accuracy" class="text-3xl font-black text-amber-500 mt-1 font-mono">0%</div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
+          <span class="text-xs font-bold text-slate-400 uppercase">Đã đánh dấu sao</span>
+          <div id="stat-bookmarked-q" class="text-3xl font-black text-yellow-500 mt-1 font-mono">0</div>
+        </div>
+
+      </div>
+
+      <!-- Category Progress Breakdown -->
+      <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <h3 class="text-lg font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <i data-lucide="pie-chart" class="w-5 h-5 text-blue-500"></i> Tiến độ ôn luyện theo từng dạng câu hỏi
+        </h3>
+        
+        <div id="stat-category-breakdown" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: FULL ORIGINAL SCREENSHOT VIEWER -->
+  <!-- ========================================== -->
+  <div id="image-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay" onclick="if (event.target === this) closeOriginalModal();">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700">
+      
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h3 id="modal-title" class="font-extrabold text-base text-slate-900 dark:text-slate-100">Slide gốc</h3>
+          <p id="modal-note" class="text-xs text-blue-600 dark:text-blue-400 font-mono"></p>
+        </div>
+        <button onclick="closeOriginalModal()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Image) -->
+      <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-slate-950">
+        <img id="modal-img" src="" alt="Slide gốc" class="max-w-full max-h-[75vh] object-contain rounded-lg">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- App scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/exam.js"></script>
+</body>
+</html>
