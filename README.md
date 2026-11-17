@@ -9,7 +9,7 @@ Hệ thống web ôn thi và thi thử trắc nghiệm môn **DBI202 (Introducti
 1. Nhấp đúp chuột vào file **`start_web.bat`** trong thư mục này.
 2. Trình duyệt web sẽ tự động mở trang web tại địa chỉ: **[http://localhost:5050](http://localhost:5050)**.
 3. Nếu máy chủ đã đang chạy ngầm, bạn chỉ cần mở trình duyệt và truy cập: **[http://localhost:5050](http://localhost:5050)**.
-
+https://dbi202fefpt.vercel.app/web/
 ---
 
 ## 🎯 Các tính năng chính
