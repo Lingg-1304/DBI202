@@ -13,10 +13,90 @@ class ExamEngine {
     this.submitted = false;
     this.results = null;
     this.config = null;
+    this.candidateName = localStorage.getItem('dbi202_user_name_v1') || '';
+    this.candidateSid = localStorage.getItem('dbi202_user_sid_v1') || '';
+    this.pendingConfig = null;
   }
 
-  // Start exam from configuration
+  // Intercept and prompt candidate name before starting exam
   startExam(config) {
+    this.pendingConfig = config;
+    this.showCandidateModal(config);
+  }
+
+  showCandidateModal(config) {
+    const modal = document.getElementById('exam-start-modal');
+    if (!modal) {
+      this.executeStartExam(config);
+      return;
+    }
+
+    const titleEl = document.getElementById('exam-start-modal-title');
+    if (titleEl) {
+      const timeStr = config.durationMinutes > 0 ? `${config.durationMinutes} phút` : 'Không giới hạn';
+      titleEl.innerText = `${config.title || 'Bài thi DBI202'} • ${config.questionCount} câu • ${timeStr}`;
+    }
+
+    const nameInput = document.getElementById('exam-candidate-name');
+    const sidInput = document.getElementById('exam-candidate-sid');
+    const errEl = document.getElementById('exam-candidate-name-err');
+    if (errEl) errEl.classList.add('hidden');
+
+    if (nameInput) {
+      nameInput.value = this.candidateName || '';
+      setTimeout(() => nameInput.focus(), 80);
+    }
+    if (sidInput) {
+      sidInput.value = this.candidateSid || '';
+    }
+
+    modal.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  }
+
+  cancelCandidateModal() {
+    const modal = document.getElementById('exam-start-modal');
+    if (modal) modal.classList.add('hidden');
+    this.pendingConfig = null;
+  }
+
+  confirmStartExam() {
+    const nameInput = document.getElementById('exam-candidate-name');
+    const sidInput = document.getElementById('exam-candidate-sid');
+    const errEl = document.getElementById('exam-candidate-name-err');
+    const name = (nameInput ? nameInput.value : '').trim();
+    const sid = (sidInput ? sidInput.value : '').trim();
+
+    if (!name || name.length < 2) {
+      if (errEl) errEl.classList.remove('hidden');
+      if (nameInput) nameInput.focus();
+      return;
+    }
+
+    if (errEl) errEl.classList.add('hidden');
+
+    this.candidateName = name;
+    this.candidateSid = sid;
+
+    // Persist user info
+    localStorage.setItem('dbi202_user_name_v1', name);
+    localStorage.setItem('dbi202_user_sid_v1', sid);
+
+    if (window.rankingManager) {
+      window.rankingManager.currentUser.name = name;
+      window.rankingManager.currentUser.studentId = sid;
+    }
+
+    const modal = document.getElementById('exam-start-modal');
+    if (modal) modal.classList.add('hidden');
+
+    const cfg = this.pendingConfig || { title: 'Chuẩn FE DBI202', category: 'all', questionCount: 50, durationMinutes: 60 };
+    this.pendingConfig = null;
+    this.executeStartExam(cfg);
+  }
+
+  // Execute starting exam once candidate info is confirmed
+  executeStartExam(config) {
     this.config = config;
     let pool = [...state.questions];
     
@@ -47,6 +127,12 @@ class ExamEngine {
     document.getElementById('exam-setup-view').classList.add('hidden');
     document.getElementById('exam-results-view').classList.add('hidden');
     document.getElementById('exam-active-view').classList.remove('hidden');
+
+    // Display candidate name badge in active banner
+    const candBadge = document.getElementById('exam-active-candidate');
+    if (candBadge) {
+      candBadge.innerText = `Thí sinh: ${this.candidateName}${this.candidateSid ? ' (' + this.candidateSid + ')' : ''}`;
+    }
     
     this.startTimer();
     this.renderExamQuestion();
@@ -351,6 +437,27 @@ class ExamEngine {
       timeSpent: timeSpentSeconds
     });
     localStorage.setItem(STORAGE_KEYS.EXAM_HISTORY, JSON.stringify(state.examHistory));
+
+    // Automatically update to Leaderboard
+    if (window.rankingManager && this.candidateName) {
+      let examType = 'standard';
+      const title = (this.config && this.config.title) ? this.config.title : '';
+      if (title.includes('SP2026')) examType = 'sp2026';
+      else if (title.includes('Thi nhanh')) examType = 'quick';
+      else if (title.includes('tùy chỉnh')) examType = 'custom';
+
+      window.rankingManager.submitNewScore({
+        name: this.candidateName,
+        studentId: this.candidateSid || '',
+        examTitle: title || 'Thi thử DBI202',
+        examType: examType,
+        score: score10,
+        correctCount: correctCount,
+        totalQuestions: total,
+        accuracy: accuracy,
+        timeSpentSeconds: timeSpentSeconds
+      });
+    }
     
     this.renderExamResults();
   }
@@ -393,85 +500,18 @@ class ExamEngine {
     const secs = r.timeSpentSeconds % 60;
     document.getElementById('exam-res-time').innerText = `${mins}m ${secs}s`;
 
-    // Leaderboard submission preview & prefill
-    const previewScore = document.getElementById('exam-rank-preview-score');
-    const previewCorrect = document.getElementById('exam-rank-preview-correct');
-    if (previewScore) previewScore.innerText = `${r.score10} / 10.0`;
-    if (previewCorrect) previewCorrect.innerText = `${r.correctCount}/${r.totalQuestions} (${r.accuracy}%)`;
-
-    const nameInput = document.getElementById('exam-rank-input-name');
-    const sidInput = document.getElementById('exam-rank-input-sid');
-    if (nameInput && window.rankingManager && window.rankingManager.currentUser) {
-      nameInput.value = window.rankingManager.currentUser.name || '';
+    // Update candidate name in the auto-save banner
+    const resCandidate = document.getElementById('exam-res-candidate-name');
+    if (resCandidate) {
+      resCandidate.innerText = `${this.candidateName || 'Thí sinh'}${this.candidateSid ? ' (' + this.candidateSid + ')' : ''}`;
     }
-    if (sidInput && window.rankingManager && window.rankingManager.currentUser) {
-      sidInput.value = window.rankingManager.currentUser.studentId || '';
-    }
-
-    const submitBtn = document.getElementById('exam-rank-submit-btn');
-    const viewBtn = document.getElementById('exam-rank-view-btn');
-    const badge = document.getElementById('exam-submit-rank-badge');
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      submitBtn.innerHTML = '<i data-lucide="award" class="w-4 h-4"></i> Ghi danh vào Bảng xếp hạng';
-    }
-    if (viewBtn) viewBtn.classList.add('hidden');
-    if (badge) badge.classList.add('hidden');
     
     // Render detailed review list
     this.renderReviewList('all');
     if (window.lucide) lucide.createIcons();
   }
 
-  submitScoreToRanking() {
-    if (!this.results) return;
-    const nameInput = document.getElementById('exam-rank-input-name');
-    const sidInput = document.getElementById('exam-rank-input-sid');
-    const name = (nameInput ? nameInput.value : '').trim();
-    const studentId = (sidInput ? sidInput.value : '').trim();
 
-    if (!name || name.length < 2) {
-      alert('Vui lòng nhập Họ & Tên hoặc biệt danh của bạn (tối thiểu 2 ký tự)!');
-      if (nameInput) nameInput.focus();
-      return;
-    }
-
-    let examType = 'standard';
-    const title = (this.config && this.config.title) ? this.config.title : '';
-    if (title.includes('SP2026')) examType = 'sp2026';
-    else if (title.includes('Thi nhanh')) examType = 'quick';
-    else if (title.includes('tùy chỉnh')) examType = 'custom';
-
-    const entry = {
-      name: name,
-      studentId: studentId,
-      examTitle: title || 'Thi thử DBI202',
-      examType: examType,
-      score: this.results.score10,
-      correctCount: this.results.correctCount,
-      totalQuestions: this.results.totalQuestions,
-      accuracy: this.results.accuracy,
-      timeSpentSeconds: this.results.timeSpentSeconds
-    };
-
-    if (window.rankingManager) {
-      window.rankingManager.submitNewScore(entry);
-    }
-
-    // Visual feedback
-    const submitBtn = document.getElementById('exam-rank-submit-btn');
-    const viewBtn = document.getElementById('exam-rank-view-btn');
-    const badge = document.getElementById('exam-submit-rank-badge');
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-      submitBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-emerald-800"></i> Đã lưu vào Bảng xếp hạng';
-    }
-    if (badge) badge.classList.remove('hidden');
-    if (viewBtn) viewBtn.classList.remove('hidden');
-    if (window.lucide) lucide.createIcons();
-  }
 
   renderReviewList(filter = 'all') {
     const container = document.getElementById('exam-review-container');
@@ -557,7 +597,7 @@ class ExamEngine {
       return;
     }
     
-    this.startExam({
+    this.executeStartExam({
       title: 'Luyện lại câu sai từ bài thi vừa nộp',
       category: 'all',
       questionCount: wrongQs.length,

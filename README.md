@@ -55,7 +55,7 @@ https://dbi202fefpt.vercel.app/web/
   - **Xem lại bài thi (Review)**: So sánh đáp án bạn chọn với đáp án chuẩn và lời giải của từng câu.
   - Nút **"Luyện lại các câu làm sai"**: Tạo ngay bài thi mới chỉ gồm các câu bạn vừa làm sai để khắc sâu kiến thức.
   - Tự động lưu lịch sử các lần thi thử vào trình duyệt.
-  - **Ghi danh vào Bảng xếp hạng**: Cho phép nhập Họ tên / Biệt danh & MSSV để lưu điểm thi và cạnh tranh thứ hạng cùng các sinh viên khác.
+  - **Xác thực thí sinh & Tự động ghi điểm**: Bắt buộc nhập Họ tên / Biệt danh (và MSSV) trước khi bắt đầu bài thi; hệ thống tự động chấm điểm và cập nhật ngay lên Bảng xếp hạng khi nộp bài.
 
 ### 3. 🏆 Bảng xếp hạng & Vinh danh (Leaderboard & Ranking)
 - **Bục vinh quang Top 3 (Podium)**:
@@ -71,7 +71,7 @@ https://dbi202fefpt.vercel.app/web/
 - **Sao lưu & Đồng bộ**:
   - Tự động đồng bộ với `public/ranking_data.json` và API máy chủ nội bộ `server.py` (`GET/POST /api/rankings`).
   - Nút **"Xuất JSON"** & **"Nhập JSON"** để dễ dàng chia sẻ bảng xếp hạng theo nhóm, lớp học.
-  - Nút tự ghi danh điểm thủ công hoặc khôi phục dữ liệu danh dự mặc định.
+  - Nút **"Khôi phục dữ liệu mẫu"** để đưa bảng xếp hạng về danh sách vinh danh danh dự mặc định.
 
 ### 4. 🔍 Ngân hàng đề (Question Explorer)
 - Danh sách tổng hợp toàn bộ 346 câu hỏi có thể cuộn, tìm kiếm và lọc.
