@@ -22,7 +22,9 @@ const state = {
     searchQuery: '',
     selectedAnswers: new Set(),
     isAnswerRevealed: false,
-    zoomLevel: 1
+    zoomLevel: 1,
+    isReviewWrongMode: false,
+    reviewedSessionIds: new Set()
   },
   
   // Local persistence
@@ -30,6 +32,184 @@ const state = {
   bookmarks: new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKMARKS) || '[]')),
   examHistory: JSON.parse(localStorage.getItem(STORAGE_KEYS.EXAM_HISTORY) || '[]')
 };
+
+// Floating Toast Notification
+function showToast(message, type = 'info') {
+  let toastContainer = document.getElementById('app-toast-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'app-toast-container';
+    toastContainer.className = 'fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none max-w-sm';
+    document.body.appendChild(toastContainer);
+  }
+  
+  const toast = document.createElement('div');
+  const bgColors = {
+    info: 'bg-slate-900/95 dark:bg-slate-800/95 text-white border-slate-700 shadow-slate-900/20',
+    success: 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-600/30',
+    warning: 'bg-amber-600 text-white border-amber-500 shadow-amber-600/30',
+    error: 'bg-rose-600 text-white border-rose-500 shadow-rose-600/30'
+  };
+  
+  toast.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl border text-sm font-semibold flex items-center gap-3 transition-all duration-300 transform translate-y-4 opacity-0 ${bgColors[type] || bgColors.info}`;
+  toast.innerHTML = `<span>${message}</span>`;
+  
+  toastContainer.appendChild(toast);
+  requestAnimationFrame(() => {
+    toast.classList.remove('translate-y-4', 'opacity-0');
+  });
+  
+  setTimeout(() => {
+    toast.classList.add('translate-y-4', 'opacity-0');
+    setTimeout(() => toast.remove(), 300);
+  }, 3200);
+}
+
+// Wrong Questions Helpers & Review Mode
+function getWrongQuestionsCount() {
+  return Object.values(state.responses).filter(r => !r.isCorrect).length;
+}
+
+function updateWrongCountBadge() {
+  const count = getWrongQuestionsCount();
+  const practiceBadge = document.getElementById('practice-wrong-badge');
+  const paletteBadge = document.getElementById('palette-wrong-count');
+  const reviewCounter = document.getElementById('review-wrong-counter');
+  const reviewBtn = document.getElementById('practice-review-wrong-btn');
+  const sidebarBtn = document.getElementById('sidebar-review-wrong-btn');
+  const banner = document.getElementById('practice-review-wrong-banner');
+
+  if (practiceBadge) practiceBadge.innerText = count;
+  if (paletteBadge) paletteBadge.innerText = count;
+  if (reviewCounter) reviewCounter.innerText = `Còn ${count} câu sai`;
+
+  if (reviewBtn) {
+    if (state.practice.isReviewWrongMode) {
+      reviewBtn.className = 'flex items-center gap-2 px-3.5 py-2 rounded-xl bg-rose-600 text-white font-semibold text-sm shadow-md shadow-rose-500/25 transition-all ring-2 ring-rose-400';
+      reviewBtn.innerHTML = `<i data-lucide="rotate-ccw" class="w-4 h-4"></i><span>Đang ôn câu sai</span><span id="practice-wrong-badge" class="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-white text-rose-600">${count}</span>`;
+    } else if (count > 0) {
+      reviewBtn.className = 'flex items-center gap-2 px-3.5 py-2 rounded-xl border border-rose-300 dark:border-rose-800 bg-rose-50/90 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-all font-semibold text-sm shadow-sm';
+      reviewBtn.innerHTML = `<i data-lucide="rotate-ccw" class="w-4 h-4"></i><span>Ôn lại câu sai</span><span id="practice-wrong-badge" class="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-rose-600 text-white">${count}</span>`;
+    } else {
+      reviewBtn.className = 'flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-600 transition-all font-semibold text-sm';
+      reviewBtn.innerHTML = `<i data-lucide="rotate-ccw" class="w-4 h-4"></i><span>Ôn lại câu sai</span><span id="practice-wrong-badge" class="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400">0</span>`;
+    }
+  }
+
+  if (sidebarBtn) {
+    if (state.practice.isReviewWrongMode) {
+      sidebarBtn.className = 'w-full py-2 px-3 rounded-xl bg-rose-600 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md shadow-rose-500/20';
+    } else {
+      sidebarBtn.className = 'w-full py-2 px-3 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm';
+    }
+  }
+
+  if (banner) {
+    if (state.practice.isReviewWrongMode) {
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  }
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function toggleReviewWrongMode() {
+  if (state.practice.isReviewWrongMode) {
+    exitReviewWrongMode();
+  } else {
+    startReviewWrongMode();
+  }
+}
+
+function startReviewWrongMode() {
+  const wrongCount = getWrongQuestionsCount();
+  if (wrongCount === 0) {
+    showToast('Tuyệt vời! Bạn hiện không có câu hỏi nào làm sai.', 'success');
+    return;
+  }
+
+  state.practice.isReviewWrongMode = true;
+  state.practice.reviewedSessionIds = new Set();
+  state.practice.selectedCategory = 'all';
+  state.practice.selectedStatus = 'wrong';
+  state.practice.searchQuery = '';
+
+  const catSelect = document.getElementById('practice-category-select');
+  if (catSelect) catSelect.value = 'all';
+  const statusSelect = document.getElementById('practice-status-select');
+  if (statusSelect) statusSelect.value = 'wrong';
+  const searchInput = document.getElementById('practice-search-input');
+  if (searchInput) searchInput.value = '';
+
+  applyPracticeFilters();
+  updateWrongCountBadge();
+  showToast(`Đã bật Chế độ ôn lại ${wrongCount} câu sai. Hãy thử sức làm lại nhé!`, 'info');
+}
+
+function exitReviewWrongMode() {
+  state.practice.isReviewWrongMode = false;
+  state.practice.reviewedSessionIds = new Set();
+  state.practice.selectedStatus = 'all';
+
+  const statusSelect = document.getElementById('practice-status-select');
+  if (statusSelect) statusSelect.value = 'all';
+
+  applyPracticeFilters();
+  updateWrongCountBadge();
+  showToast('Đã thoát chế độ ôn lại câu sai. Đang hiển thị tất cả câu hỏi.', 'info');
+}
+
+function startReviewWrongFromStats() {
+  switchTab('practice');
+  startReviewWrongMode();
+}
+
+function resetAllWrongResponses() {
+  const wrongIds = Object.keys(state.responses).filter(id => !state.responses[id].isCorrect);
+  if (wrongIds.length === 0) {
+    showToast('Không có câu sai nào để đặt lại.', 'info');
+    return;
+  }
+  if (confirm(`Bạn có chắc muốn xóa kết quả của ${wrongIds.length} câu làm sai để luyện lại hoàn toàn từ đầu?`)) {
+    wrongIds.forEach(id => delete state.responses[id]);
+    localStorage.setItem(STORAGE_KEYS.PRACTICE_RESPONSES, JSON.stringify(state.responses));
+    state.practice.reviewedSessionIds.clear();
+    exitReviewWrongMode();
+    updateHeaderStats();
+    renderStatsTab();
+    showToast(`Đã đặt lại ${wrongIds.length} câu làm sai!`, 'success');
+  }
+}
+
+function transferExamWrongToPractice() {
+  if (!window.examEngine || !window.examEngine.results) {
+    showToast('Chưa có kết quả bài thi để chuyển!', 'warning');
+    return;
+  }
+  const wrongDetails = window.examEngine.results.details.filter(d => !d.isCorrect);
+  if (wrongDetails.length === 0) {
+    showToast('Bài thi này bạn không làm sai câu nào cả! Xuất sắc!', 'success');
+    return;
+  }
+  
+  wrongDetails.forEach(d => {
+    state.responses[d.question.id] = {
+      userAnswer: d.userAnswer || '',
+      isCorrect: false,
+      timestamp: Date.now()
+    };
+  });
+  localStorage.setItem(STORAGE_KEYS.PRACTICE_RESPONSES, JSON.stringify(state.responses));
+  
+  updateHeaderStats();
+  renderStatsTab();
+  
+  switchTab('practice');
+  startReviewWrongMode();
+  showToast(`Đã chuyển ${wrongDetails.length} câu sai từ bài thi vào phần Ôn tập!`, 'success');
+}
 
 // Initialize App
 async function initApp() {
@@ -60,6 +240,7 @@ async function initApp() {
     renderStatsTab();
     renderBankTab();
     updateHeaderStats();
+    updateWrongCountBadge();
     
     // Initialize Ranking Leaderboard
     if (window.rankingManager) {
@@ -158,6 +339,12 @@ function populateCategorySelectors() {
 function applyPracticeFilters() {
   const { selectedCategory, selectedStatus, searchQuery } = state.practice;
   
+  if (selectedStatus === 'wrong') {
+    state.practice.isReviewWrongMode = true;
+  } else {
+    state.practice.isReviewWrongMode = false;
+  }
+
   state.practice.filtered = state.questions.filter(q => {
     // Category filter
     if (selectedCategory !== 'all' && q.category_id !== selectedCategory) return false;
@@ -186,6 +373,7 @@ function applyPracticeFilters() {
   state.practice.currentIndex = 0;
   renderPracticeQuestion();
   renderPracticeNavigator();
+  updateWrongCountBadge();
 }
 
 // Render Practice Question
@@ -195,7 +383,34 @@ function renderPracticeQuestion() {
   
   if (!state.practice.filtered.length) {
     if (container) container.classList.add('hidden');
-    if (emptyState) emptyState.classList.remove('hidden');
+    if (emptyState) {
+      emptyState.classList.remove('hidden');
+      if (state.practice.isReviewWrongMode) {
+        emptyState.innerHTML = `
+          <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 mx-auto flex items-center justify-center mb-4">
+            <i data-lucide="check-circle-2" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-2">Không còn câu sai nào!</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Tuyệt vời! Bạn chưa làm sai câu nào hoặc đã sửa đúng tất cả các câu hỏi.</p>
+          <button onclick="exitReviewWrongMode()" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700">
+            Xem tất cả 346 câu
+          </button>
+        `;
+        if (window.lucide) lucide.createIcons();
+      } else {
+        emptyState.innerHTML = `
+          <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 mx-auto flex items-center justify-center mb-4">
+            <i data-lucide="inbox" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-2">Không tìm thấy câu hỏi phù hợp</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Hãy thử chọn danh mục khác hoặc xóa bộ lọc tìm kiếm.</p>
+          <button onclick="state.practice.selectedCategory = 'all'; state.practice.selectedStatus = 'all'; state.practice.searchQuery = ''; document.getElementById('practice-category-select').value = 'all'; document.getElementById('practice-status-select').value = 'all'; document.getElementById('practice-search-input').value = ''; applyPracticeFilters();" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700">
+            Xem tất cả 346 câu
+          </button>
+        `;
+        if (window.lucide) lucide.createIcons();
+      }
+    }
     return;
   }
   
@@ -206,12 +421,46 @@ function renderPracticeQuestion() {
   state.practice.isAnswerRevealed = false;
   state.practice.selectedAnswers.clear();
   
-  // Previous response
   const prevResp = state.responses[q.id];
-  if (prevResp) {
-    // If already answered, reveal state
-    prevResp.userAnswer.split('').forEach(ch => state.practice.selectedAnswers.add(ch));
-    state.practice.isAnswerRevealed = true;
+  const isReviewedInThisSession = state.practice.reviewedSessionIds && state.practice.reviewedSessionIds.has(q.id);
+  
+  // Decide whether answer is revealed:
+  if (state.practice.isReviewWrongMode) {
+    if (isReviewedInThisSession) {
+      if (prevResp) {
+        prevResp.userAnswer.split('').forEach(ch => state.practice.selectedAnswers.add(ch));
+      }
+      state.practice.isAnswerRevealed = true;
+    } else {
+      state.practice.isAnswerRevealed = false;
+      state.practice.selectedAnswers.clear();
+    }
+  } else {
+    if (prevResp) {
+      prevResp.userAnswer.split('').forEach(ch => state.practice.selectedAnswers.add(ch));
+      state.practice.isAnswerRevealed = true;
+    }
+  }
+  
+  // Previous mistake banner handling
+  const historyBanner = document.getElementById('practice-wrong-history-banner');
+  const historyText = document.getElementById('practice-wrong-history-text');
+  if (historyBanner) {
+    if (!state.practice.isAnswerRevealed && prevResp && !prevResp.isCorrect) {
+      historyBanner.classList.remove('hidden');
+      if (historyText) {
+        historyText.innerHTML = `Bạn từng chọn sai câu này (đáp án cũ: <b class="font-mono text-rose-600 dark:text-rose-400 font-bold">${prevResp.userAnswer || 'Chưa chọn'}</b>). Hãy chọn lại đáp án đúng:`;
+      }
+    } else {
+      historyBanner.classList.add('hidden');
+    }
+  }
+  
+  // Clear result feedback in explanation if not answered in session
+  const feedbackEl = document.getElementById('practice-review-result-feedback');
+  if (feedbackEl && !isReviewedInThisSession) {
+    feedbackEl.classList.add('hidden');
+    feedbackEl.innerHTML = '';
   }
   
   // Update header info
@@ -258,6 +507,57 @@ function renderPracticeQuestion() {
   updatePracticeNavigatorActive();
   
   if (window.lucide) lucide.createIcons();
+}
+
+function revealPracticeAnswerImmediate() {
+  const q = state.practice.filtered[state.practice.currentIndex];
+  if (!q) return;
+  state.practice.isAnswerRevealed = true;
+  if (state.practice.reviewedSessionIds) {
+    state.practice.reviewedSessionIds.add(q.id);
+  }
+  const prevResp = state.responses[q.id];
+  if (prevResp) {
+    state.practice.selectedAnswers.clear();
+    prevResp.userAnswer.split('').forEach(ch => state.practice.selectedAnswers.add(ch));
+  }
+  const historyBanner = document.getElementById('practice-wrong-history-banner');
+  if (historyBanner) historyBanner.classList.add('hidden');
+  renderPracticeOptions(q);
+  renderPracticeExplanation(q);
+  if (window.lucide) lucide.createIcons();
+}
+
+function retryCurrentPracticeQuestion() {
+  const q = state.practice.filtered[state.practice.currentIndex];
+  if (!q) return;
+  
+  delete state.responses[q.id];
+  if (state.practice.reviewedSessionIds) {
+    state.practice.reviewedSessionIds.delete(q.id);
+  }
+  localStorage.setItem(STORAGE_KEYS.PRACTICE_RESPONSES, JSON.stringify(state.responses));
+  
+  state.practice.isAnswerRevealed = false;
+  state.practice.selectedAnswers.clear();
+  
+  const historyBanner = document.getElementById('practice-wrong-history-banner');
+  if (historyBanner) historyBanner.classList.add('hidden');
+  
+  const feedbackEl = document.getElementById('practice-review-result-feedback');
+  if (feedbackEl) {
+    feedbackEl.classList.add('hidden');
+    feedbackEl.innerHTML = '';
+  }
+  
+  renderPracticeOptions(q);
+  renderPracticeExplanation(q);
+  updatePracticeNavigatorActive();
+  updateHeaderStats();
+  updateWrongCountBadge();
+  renderStatsTab();
+  
+  showToast(`Bạn có thể làm lại câu #${q.number}!`, 'info');
 }
 
 // Render Option Buttons for Practice
@@ -354,11 +654,59 @@ function submitPracticeAnswer(q) {
   };
   localStorage.setItem(STORAGE_KEYS.PRACTICE_RESPONSES, JSON.stringify(state.responses));
   
+  if (state.practice.reviewedSessionIds) {
+    state.practice.reviewedSessionIds.add(q.id);
+  }
+  
   state.practice.isAnswerRevealed = true;
+  
+  // Hide wrong history banner once answered
+  const historyBanner = document.getElementById('practice-wrong-history-banner');
+  if (historyBanner) historyBanner.classList.add('hidden');
+  
+  // Result feedback in explanation card
+  const feedbackEl = document.getElementById('practice-review-result-feedback');
+  if (feedbackEl) {
+    if (state.practice.isReviewWrongMode) {
+      feedbackEl.classList.remove('hidden');
+      if (isCorrect) {
+        feedbackEl.innerHTML = `
+          <div class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm font-bold flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></i>
+            <span>🎉 Xuất sắc! Bạn đã sửa sai thành công câu này!</span>
+          </div>
+        `;
+        showToast(`Chính xác! Bạn đã sửa đúng câu #${q.number}! 🎉`, 'success');
+      } else {
+        feedbackEl.innerHTML = `
+          <div class="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-sm font-bold flex items-center gap-2">
+            <i data-lucide="x-circle" class="w-5 h-5 text-rose-600 dark:text-rose-400"></i>
+            <span>Chưa chính xác! Hãy đọc kỹ giải thích bên dưới để ghi nhớ đáp án chuẩn nhé.</span>
+          </div>
+        `;
+        showToast(`Chưa đúng câu #${q.number}. Hãy xem giải thích bên dưới!`, 'warning');
+      }
+    } else {
+      feedbackEl.classList.add('hidden');
+      feedbackEl.innerHTML = '';
+    }
+  }
+  
   renderPracticeOptions(q);
   renderPracticeExplanation(q);
   updatePracticeNavigatorActive();
   updateHeaderStats();
+  updateWrongCountBadge();
+  renderStatsTab();
+  
+  if (state.practice.isReviewWrongMode) {
+    const wrongLeft = getWrongQuestionsCount();
+    if (wrongLeft === 0) {
+      setTimeout(() => {
+        showToast('🎉 Tuyệt vời! Bạn đã hoàn thành và sửa đúng toàn bộ các câu sai!', 'success');
+      }, 500);
+    }
+  }
 }
 
 // Render Explanation
@@ -450,6 +798,8 @@ function updatePracticeNavigatorActive() {
           btn.classList.remove('bg-emerald-500', 'border-emerald-500');
           btn.classList.add('bg-rose-500', 'text-white', 'border-rose-500');
         }
+      } else {
+        btn.classList.remove('bg-emerald-500', 'border-emerald-500', 'bg-rose-500', 'border-rose-500', 'text-white');
       }
       if (state.bookmarks.has(q.id)) {
         btn.classList.add('flagged');
@@ -530,10 +880,66 @@ function prevPracticeQuestion() {
   }
 }
 
+// Random Practice Question (skips already answered questions)
 function randomPracticeQuestion() {
-  if (!state.practice.filtered.length) return;
-  const randIdx = Math.floor(Math.random() * state.practice.filtered.length);
-  state.practice.currentIndex = randIdx;
+  if (!state.practice.filtered.length) {
+    showToast('Danh sách câu hỏi đang trống!', 'warning');
+    return;
+  }
+  
+  const currentQ = state.practice.filtered[state.practice.currentIndex];
+  
+  // Case 1: If user explicitly filtered for only 'correct' questions
+  if (state.practice.selectedStatus === 'correct') {
+    const pool = state.practice.filtered.filter(q => q.id !== currentQ?.id);
+    if (pool.length === 0) {
+      showToast('Chỉ có 1 câu đã làm đúng trong danh sách này!', 'info');
+      return;
+    }
+    const randQ = pool[Math.floor(Math.random() * pool.length)];
+    state.practice.currentIndex = state.practice.filtered.findIndex(q => q.id === randQ.id);
+    renderPracticeQuestion();
+    return;
+  }
+  
+  // Case 2: In Review Wrong Mode
+  if (state.practice.isReviewWrongMode) {
+    const remainingWrong = state.practice.filtered.filter(q => {
+      const resp = state.responses[q.id];
+      if (resp && resp.isCorrect) return false;
+      if (state.practice.reviewedSessionIds && state.practice.reviewedSessionIds.has(q.id)) return false;
+      return true;
+    });
+    
+    if (remainingWrong.length === 0) {
+      showToast('Bạn đã ôn tập xong tất cả các câu sai trong danh sách này! 🎉', 'success');
+      return;
+    }
+    
+    const candidates = remainingWrong.filter(q => q.id !== currentQ?.id);
+    const targetQ = candidates.length > 0 
+      ? candidates[Math.floor(Math.random() * candidates.length)] 
+      : remainingWrong[0];
+      
+    state.practice.currentIndex = state.practice.filtered.findIndex(q => q.id === targetQ.id);
+    renderPracticeQuestion();
+    return;
+  }
+  
+  // Case 3: Standard Practice Mode (filters out already answered questions)
+  const unattempted = state.practice.filtered.filter(q => !state.responses[q.id]);
+  
+  if (unattempted.length === 0) {
+    showToast('Bạn đã làm hết tất cả các câu trong danh sách này! Không còn câu nào chưa làm.', 'info');
+    return;
+  }
+  
+  const candidates = unattempted.filter(q => q.id !== currentQ?.id);
+  const targetQ = candidates.length > 0 
+    ? candidates[Math.floor(Math.random() * candidates.length)] 
+    : unattempted[0];
+    
+  state.practice.currentIndex = state.practice.filtered.findIndex(q => q.id === targetQ.id);
   renderPracticeQuestion();
 }
 
@@ -650,11 +1056,16 @@ function jumpToPractice(qId) {
 function resetPracticeProgress() {
   if (confirm('Bạn có chắc chắn muốn xóa toàn bộ tiến độ làm bài ôn tập? (Dấu sao bookmark sẽ không bị xóa)')) {
     state.responses = {};
+    if (state.practice.reviewedSessionIds) {
+      state.practice.reviewedSessionIds.clear();
+    }
+    state.practice.isReviewWrongMode = false;
     localStorage.removeItem(STORAGE_KEYS.PRACTICE_RESPONSES);
     applyPracticeFilters();
     renderStatsTab();
     updateHeaderStats();
-    alert('Đã đặt lại tiến độ ôn tập thành công!');
+    updateWrongCountBadge();
+    showToast('Đã đặt lại tiến độ ôn tập thành công!', 'success');
   }
 }
 

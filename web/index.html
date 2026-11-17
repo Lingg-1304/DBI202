@@ -137,6 +137,13 @@
             <option value="wrong">Đã làm sai</option>
             <option value="bookmarked">Đã đánh dấu sao ⭐</option>
           </select>
+
+          <!-- Quick Review Wrong Button -->
+          <button id="practice-review-wrong-btn" onclick="toggleReviewWrongMode()" class="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-rose-300 dark:border-rose-800 bg-rose-50/90 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-all font-semibold text-sm shadow-sm" title="Ôn lại các câu đã làm sai">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            <span>Ôn lại câu sai</span>
+            <span id="practice-wrong-badge" class="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-rose-600 text-white">0</span>
+          </button>
         </div>
 
         <!-- Search & Actions -->
@@ -146,11 +153,35 @@
             <input id="practice-search-input" type="text" placeholder="Tìm theo #số hoặc từ khóa..." oninput="state.practice.searchQuery = this.value; applyPracticeFilters();" class="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
           
-          <button onclick="randomPracticeQuestion()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Câu hỏi ngẫu nhiên (R)">
+          <button onclick="randomPracticeQuestion()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" title="Câu hỏi ngẫu nhiên chưa làm (R)">
             <i data-lucide="shuffle" class="w-4 h-4"></i>
           </button>
         </div>
 
+      </div>
+
+      <!-- Review Wrong Mode Banner -->
+      <div id="practice-review-wrong-banner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-rose-50 via-amber-50 to-orange-50 dark:from-rose-950/40 dark:via-slate-900 dark:to-amber-950/20 border-2 border-rose-300 dark:border-rose-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-bold shadow-md shadow-rose-500/30 flex-shrink-0">
+            <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-extrabold text-sm sm:text-base text-rose-900 dark:text-rose-200">CHẾ ĐỘ ÔN LẠI CÂU SAI</h3>
+              <span id="review-wrong-counter" class="text-xs px-2.5 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 font-mono font-bold">Còn 0 câu</span>
+            </div>
+            <p class="text-xs text-rose-700/80 dark:text-rose-300/70 font-medium">Làm lại các câu hỏi bạn từng trả lời sai để củng cố kiến thức trước kỳ thi FE.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <button onclick="resetAllWrongResponses()" class="px-3 py-1.5 rounded-xl border border-rose-300 dark:border-rose-700 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-bold transition-all" title="Xóa kết quả các câu sai để bắt đầu luyện lại hoàn toàn mới">
+            Đặt lại câu sai
+          </button>
+          <button onclick="exitReviewWrongMode()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i> Thoát ôn câu sai
+          </button>
+        </div>
       </div>
 
       <!-- Practice Main Grid (Question Card + Sidebar Palette) -->
@@ -201,6 +232,17 @@
               <img id="practice-question-img" src="" alt="Câu hỏi đề thi" class="w-full">
             </div>
 
+            <!-- Wrong History Notice in Review Mode -->
+            <div id="practice-wrong-history-banner" class="hidden p-3.5 rounded-2xl bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-semibold flex flex-wrap items-center justify-between gap-2 shadow-sm">
+              <div class="flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500 flex-shrink-0"></i>
+                <span id="practice-wrong-history-text">Bạn đã từng chọn sai câu này. Hãy thử suy nghĩ và chọn lại đáp án đúng!</span>
+              </div>
+              <button type="button" onclick="revealPracticeAnswerImmediate()" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold flex items-center gap-1">
+                <i data-lucide="eye" class="w-3.5 h-3.5"></i> Xem đáp án & giải thích
+              </button>
+            </div>
+
             <!-- Options Section -->
             <div class="space-y-3">
               <div class="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -219,7 +261,11 @@
 
             <!-- Explanation & Answer Box -->
             <div id="practice-explanation-card" class="hidden p-6 rounded-2xl bg-gradient-to-br from-blue-50/70 to-indigo-50/40 dark:from-slate-800/80 dark:to-slate-800/40 border-2 border-blue-200 dark:border-blue-900/50 space-y-4">
-              <div class="flex items-center justify-between">
+              
+              <!-- Review Mode Result Feedback -->
+              <div id="practice-review-result-feedback" class="hidden"></div>
+
+              <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-extrabold text-lg">
                   <i data-lucide="check-circle-2" class="w-6 h-6"></i>
                   <span>Đáp án đúng:</span>
@@ -228,9 +274,14 @@
                   </span>
                 </div>
 
-                <button id="practice-view-original-btn" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 text-slate-700 dark:text-slate-200 flex items-center gap-1.5 shadow-sm">
-                  <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Xem slide gốc đầy đủ
-                </button>
+                <div class="flex items-center gap-2">
+                  <button id="practice-retry-btn" onclick="retryCurrentPracticeQuestion()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700 hover:bg-amber-100 text-amber-700 dark:text-amber-300 flex items-center gap-1.5 shadow-sm transition-all" title="Làm lại câu hỏi này">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Làm lại câu này
+                  </button>
+                  <button id="practice-view-original-btn" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 text-slate-700 dark:text-slate-200 flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Xem slide gốc đầy đủ
+                  </button>
+                </div>
               </div>
 
               <div class="space-y-1">
@@ -296,8 +347,12 @@
               <!-- Buttons dynamically populated -->
             </div>
 
-            <!-- Reset Button -->
-            <div class="pt-4 mt-3 border-t border-slate-100 dark:border-slate-800">
+            <!-- Action Buttons in Sidebar -->
+            <div class="pt-4 mt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+              <button id="sidebar-review-wrong-btn" onclick="toggleReviewWrongMode()" class="w-full py-2 px-3 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/80 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                <span>Ôn lại câu sai (<span id="palette-wrong-count">0</span>)</span>
+              </button>
               <button onclick="resetPracticeProgress()" class="w-full text-xs text-slate-400 hover:text-rose-500 py-1.5 text-center transition-colors">
                 Đặt lại toàn bộ tiến độ làm bài
               </button>
@@ -608,11 +663,14 @@
             <button onclick="examEngine.renderReviewList('correct')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">Chỉ câu đúng</button>
           </div>
 
-          <div class="flex items-center gap-3">
-            <button onclick="examEngine.retakeWrongQuestions()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Luyện lại câu sai
+          <div class="flex items-center gap-2">
+            <button onclick="examEngine.retakeWrongQuestions()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm" title="Làm bài thi thử chỉ gồm các câu vừa làm sai">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Thi lại câu sai
             </button>
-            <button onclick="document.getElementById('exam-results-view').classList.add('hidden'); document.getElementById('exam-setup-view').classList.remove('hidden');" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
+            <button onclick="transferExamWrongToPractice()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm" title="Đưa các câu làm sai này vào phần Ôn tập để luyện kỹ">
+              <i data-lucide="book-open" class="w-4 h-4"></i> Ôn ở phần Ôn tập
+            </button>
+            <button onclick="document.getElementById('exam-results-view').classList.add('hidden'); document.getElementById('exam-setup-view').classList.remove('hidden');" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
               <i data-lucide="play" class="w-4 h-4"></i> Thi bài mới
             </button>
           </div>
@@ -848,9 +906,14 @@
           <div id="stat-correct-q" class="text-3xl font-black text-emerald-600 mt-1 font-mono">0</div>
         </div>
 
-        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
-          <span class="text-xs font-bold text-slate-400 uppercase">Số câu sai</span>
-          <div id="stat-wrong-q" class="text-3xl font-black text-rose-600 mt-1 font-mono">0</div>
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-slate-400 uppercase">Số câu sai</span>
+            <div id="stat-wrong-q" class="text-3xl font-black text-rose-600 mt-1 font-mono">0</div>
+          </div>
+          <button onclick="startReviewWrongFromStats()" class="mt-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline flex items-center justify-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Ôn lại ngay
+          </button>
         </div>
 
         <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
