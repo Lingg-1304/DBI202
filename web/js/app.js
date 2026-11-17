@@ -132,7 +132,7 @@ function switchTab(tabName) {
     }
   });
 
-  if (tabName === 'ranking' && window.rankingManager) window.rankingManager.render();
+  if (tabName === 'ranking' && window.rankingManager) window.rankingManager.refreshOnline();
   if (tabName === 'stats') renderStatsTab();
   if (tabName === 'bank') renderBankTab();
   if (window.lucide) lucide.createIcons();

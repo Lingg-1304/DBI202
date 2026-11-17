@@ -68,10 +68,11 @@ https://dbi202fefpt.vercel.app/web/
   - Lọc theo phân loại học lực: Xuất sắc (9.0 - 10.0), Giỏi (8.0 - 8.9), Khá (6.5 - 7.9), Đạt (5.0 - 6.4), Chưa đạt (< 5.0).
   - Sắp xếp linh hoạt: Điểm cao nhất 🏆, Thời gian nhanh nhất ⚡, Mới thi gần đây 🕒.
   - Tìm kiếm tức thì theo Họ tên hoặc Mã số sinh viên (MSSV).
-- **Sao lưu & Đồng bộ**:
-  - Tự động đồng bộ với `public/ranking_data.json` và API máy chủ nội bộ `server.py` (`GET/POST /api/rankings`).
-  - Nút **"Xuất JSON"** & **"Nhập JSON"** để dễ dàng chia sẻ bảng xếp hạng theo nhóm, lớp học.
-  - Nút **"Khôi phục dữ liệu mẫu"** để đưa bảng xếp hạng về danh sách vinh danh danh dự mặc định.
+- **Lưu trữ Trực tuyến (Cloud Database - Không dùng Local Storage)**:
+  - Bảng xếp hạng được đồng bộ trực tiếp lên Cloud Database trực tuyến (hỗ trợ Firebase Realtime Database REST API và máy chủ nội bộ `server.py`).
+  - Không lưu điểm xếp hạng trong Local Storage của trình duyệt, đảm bảo tất cả thí sinh truy cập ở mọi thiết bị đều xem chung một Bảng xếp hạng trực tuyến duy nhất.
+  - Tích hợp nút **"Cấu hình Cloud DB"** ngay trên giao diện cho phép kết nối tới cơ sở dữ liệu online chỉ trong 1 phút.
+  - Hỗ trợ nút **"Làm mới từ Cloud"**, **"Xuất JSON"** & **"Nhập JSON"** để sao lưu hoặc chia sẻ dữ liệu điểm.
 
 ### 4. 🔍 Ngân hàng đề (Question Explorer)
 - Danh sách tổng hợp toàn bộ 346 câu hỏi có thể cuộn, tìm kiếm và lọc.
