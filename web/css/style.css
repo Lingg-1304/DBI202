@@ -201,3 +201,69 @@ code, kbd, .font-mono {
   background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(4px);
 }
+
+/* ========================================== */
+/* RANKING & LEADERBOARD STYLES */
+/* ========================================== */
+
+.podium-card-gold {
+  background: linear-gradient(135deg, rgba(254, 240, 138, 0.15) 0%, rgba(250, 204, 21, 0.05) 100%);
+  border: 2px solid rgba(234, 179, 8, 0.6);
+  box-shadow: 0 10px 25px -5px rgba(234, 179, 8, 0.15);
+}
+.dark .podium-card-gold {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 2px solid rgba(234, 179, 8, 0.5);
+  box-shadow: 0 10px 30px -5px rgba(234, 179, 8, 0.2);
+}
+
+.podium-card-silver {
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.4) 0%, rgba(203, 213, 225, 0.1) 100%);
+  border: 2px solid rgba(148, 163, 184, 0.5);
+}
+.dark .podium-card-silver {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 2px solid rgba(148, 163, 184, 0.4);
+}
+
+.podium-card-bronze {
+  background: linear-gradient(135deg, rgba(254, 215, 170, 0.25) 0%, rgba(251, 146, 60, 0.05) 100%);
+  border: 2px solid rgba(217, 119, 6, 0.5);
+}
+.dark .podium-card-bronze {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 2px solid rgba(217, 119, 6, 0.4);
+}
+
+.rank-badge-1 {
+  background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+  color: #78350f;
+  box-shadow: 0 4px 10px rgba(234, 179, 8, 0.35);
+}
+
+.rank-badge-2 {
+  background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+  color: #1e293b;
+  box-shadow: 0 4px 10px rgba(148, 163, 184, 0.3);
+}
+
+.rank-badge-3 {
+  background: linear-gradient(135deg, #fed7aa 0%, #d97706 100%);
+  color: #7c2d12;
+  box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);
+}
+
+.rank-badge-normal {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--text-muted);
+}
+
+@keyframes crown-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(2deg); }
+}
+
+.crown-anim {
+  animation: crown-float 2.5s ease-in-out infinite;
+}
+

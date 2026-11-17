@@ -55,12 +55,29 @@ https://dbi202fefpt.vercel.app/web/
   - **Xem lại bài thi (Review)**: So sánh đáp án bạn chọn với đáp án chuẩn và lời giải của từng câu.
   - Nút **"Luyện lại các câu làm sai"**: Tạo ngay bài thi mới chỉ gồm các câu bạn vừa làm sai để khắc sâu kiến thức.
   - Tự động lưu lịch sử các lần thi thử vào trình duyệt.
+  - **Ghi danh vào Bảng xếp hạng**: Cho phép nhập Họ tên / Biệt danh & MSSV để lưu điểm thi và cạnh tranh thứ hạng cùng các sinh viên khác.
 
-### 3. 🔍 Ngân hàng đề (Question Explorer)
+### 3. 🏆 Bảng xếp hạng & Vinh danh (Leaderboard & Ranking)
+- **Bục vinh quang Top 3 (Podium)**:
+  - 🥇 Quán quân (Gold): Vương miện hoàng gia, hiệu ứng hào quang, hiển thị điểm tuyệt đối, đề thi và thời gian thi.
+  - 🥈 Á quân (Silver) & 🥉 Quý quân (Bronze): Huy chương bạc và đồng trang trọng.
+- **Thành tích cá nhân (User Spotlight)**:
+  - Tự động nhận diện và ghim bảng thống kê cá nhân: Hạng cao nhất, điểm kỷ lục, tổng số lượt thi đã thực hiện.
+- **Bộ lọc & Sắp xếp chuyên sâu**:
+  - Lọc theo từng loại đề: Chuẩn FE DBI202 (50 câu), Đề SP2026 FE, Thi nhanh (20 câu), Tùy chỉnh.
+  - Lọc theo phân loại học lực: Xuất sắc (9.0 - 10.0), Giỏi (8.0 - 8.9), Khá (6.5 - 7.9), Đạt (5.0 - 6.4), Chưa đạt (< 5.0).
+  - Sắp xếp linh hoạt: Điểm cao nhất 🏆, Thời gian nhanh nhất ⚡, Mới thi gần đây 🕒.
+  - Tìm kiếm tức thì theo Họ tên hoặc Mã số sinh viên (MSSV).
+- **Sao lưu & Đồng bộ**:
+  - Tự động đồng bộ với `public/ranking_data.json` và API máy chủ nội bộ `server.py` (`GET/POST /api/rankings`).
+  - Nút **"Xuất JSON"** & **"Nhập JSON"** để dễ dàng chia sẻ bảng xếp hạng theo nhóm, lớp học.
+  - Nút tự ghi danh điểm thủ công hoặc khôi phục dữ liệu danh dự mặc định.
+
+### 4. 🔍 Ngân hàng đề (Question Explorer)
 - Danh sách tổng hợp toàn bộ 346 câu hỏi có thể cuộn, tìm kiếm và lọc.
 - Bấm **"Luyện tập"** để chuyển ngay sang chế độ ôn luyện cho câu hỏi đó.
 
-### 4. 📊 Thống kê & Tiến độ (Analytics)
+### 5. 📊 Thống kê & Tiến độ (Analytics)
 - Bảng tổng kết số câu đã làm, số câu đúng/sai, độ chính xác tổng thể.
 - Thanh tiến độ hoàn thành theo từng dạng bài riêng biệt.
 - Nút đặt lại tiến độ khi muốn ôn tập lại từ đầu.
@@ -69,6 +86,7 @@ https://dbi202fefpt.vercel.app/web/
 
 ## 📂 Cơ cấu dữ liệu
 - `web/public/questions_data.json`: Bộ dữ liệu 346 câu hỏi đã chuẩn hóa (ID, Dạng bài, Ảnh câu hỏi, Ảnh đáp án, Đáp án đúng, Giải thích, Thuộc tính).
+- `web/public/ranking_data.json`: Dữ liệu bảng xếp hạng và danh sách điểm thi của các thí sinh.
 - `web/public/questions/`: Ảnh đề thi đã cắt bỏ phần đáp án (độ phân giải cao, rõ nét).
 - `web/public/answers/`: Ảnh chụp ghi chú đáp án và lời giải gốc.
 - `web/public/DBI202_FE/`: Liên kết trực tiếp đến kho ảnh gốc ban đầu.

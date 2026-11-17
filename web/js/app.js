@@ -61,6 +61,11 @@ async function initApp() {
     renderBankTab();
     updateHeaderStats();
     
+    // Initialize Ranking Leaderboard
+    if (window.rankingManager) {
+      window.rankingManager.init();
+    }
+    
     // Initialize Lucide icons
     if (window.lucide) lucide.createIcons();
   } catch (err) {
@@ -95,9 +100,11 @@ function toggleTheme() {
 // Navigation Tabs
 function switchTab(tabName) {
   state.currentTab = tabName;
-  ['practice', 'exam', 'bank', 'stats'].forEach(t => {
+  ['practice', 'exam', 'ranking', 'bank', 'stats'].forEach(t => {
     const section = document.getElementById(`tab-${t}`);
     const navBtn = document.getElementById(`nav-btn-${t}`);
+    const mobileNavBtn = document.getElementById(`mobile-nav-btn-${t}`);
+    
     if (section) {
       if (t === tabName) {
         section.classList.remove('hidden');
@@ -108,14 +115,24 @@ function switchTab(tabName) {
     if (navBtn) {
       if (t === tabName) {
         navBtn.classList.add('active', 'bg-blue-600', 'text-white');
-        navBtn.classList.remove('text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
+        navBtn.classList.remove('text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-200/60', 'dark:hover:bg-slate-700');
       } else {
         navBtn.classList.remove('active', 'bg-blue-600', 'text-white');
-        navBtn.classList.add('text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
+        navBtn.classList.add('text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-200/60', 'dark:hover:bg-slate-700');
+      }
+    }
+    if (mobileNavBtn) {
+      if (t === tabName) {
+        mobileNavBtn.classList.add('text-blue-600', 'dark:text-blue-400');
+        mobileNavBtn.classList.remove('text-slate-500');
+      } else {
+        mobileNavBtn.classList.remove('text-blue-600', 'dark:text-blue-400');
+        mobileNavBtn.classList.add('text-slate-500');
       }
     }
   });
 
+  if (tabName === 'ranking' && window.rankingManager) window.rankingManager.render();
   if (tabName === 'stats') renderStatsTab();
   if (tabName === 'bank') renderBankTab();
   if (window.lucide) lucide.createIcons();
